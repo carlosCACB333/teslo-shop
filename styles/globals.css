@@ -1,16 +1,62 @@
-html,
+@import url("https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-* {
-  box-sizing: border-box;
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fadeIn {
+  -webkit-animation-duration: 0.8s;
+  animation-duration: 0.8s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn;
+}
+
+/* Estilos para motores Webkit y blink (Chrome, Safari, Opera... )*/
+
+.scroll::-webkit-scrollbar {
+  -webkit-appearance: none;
+}
+
+.scroll::-webkit-scrollbar:vertical {
+  width: 8px;
+}
+
+.scroll::-webkit-scrollbar-button:increment,
+.scroll::-webkit-scrollbar-button {
+  display: none;
+}
+
+.scroll::-webkit-scrollbar:horizontal {
+  height: 10px;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  background-color: #797979;
+  border-radius: 20px;
+  /* border: 2px solid #f1f2f3; */
+}
+
+.scroll::-webkit-scrollbar-track {
+  border-radius: 10px;
 }
