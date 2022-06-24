@@ -1,27 +1,15 @@
-import {
-  Box,
-  Button,
-  Container,
-  FormControl,
-  FormHelperText,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Button, Container, Grid, MenuItem, TextField, Typography } from "@mui/material";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
-
 import React, { useContext, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { ShopLayout } from "../../components/layout/ShopLayout";
 import { IAddress } from "../../interfaces";
 import { countries } from "../../utils/countries";
-import { addressResolver } from "../../validators";
-
+import * as yup from "yup";
 import { CartContext } from "../../context";
+import { messages } from "validators";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const defaultValues: IAddress = JSON.parse(Cookies.get("address") || "{}");
 
@@ -134,3 +122,16 @@ export const AddressPage = () => {
 };
 
 export default AddressPage;
+
+const addressResolver = yupResolver(
+  yup.object({
+    firstName: yup.string().required(messages.msgRequered),
+    lastName: yup.string().required(messages.msgRequered),
+    address: yup.string().required(messages.msgRequered),
+    address2: yup.string(),
+    zip: yup.string().required(messages.msgRequered),
+    city: yup.string().required(messages.msgRequered),
+    country: yup.string().required(messages.msgRequered),
+    phone: yup.string().required(messages.msgRequered),
+  })
+);

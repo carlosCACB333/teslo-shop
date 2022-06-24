@@ -4,17 +4,16 @@ import NextLink from "next/link";
 import React, { useContext } from "react";
 import { AuthLayout } from "../../components/layout";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GoogleIcon from "@mui/icons-material/Google";
 import { Logo, Toast } from "../../components/UI";
 import { useForm } from "react-hook-form";
-import { signupResolver } from "../../validators";
-
 import { AuthContext } from "../../context";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import { getSession, signIn } from "next-auth/react";
 import { GetServerSideProps } from "next";
+import { messages } from "validators";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 interface IForm {
   name: string;
@@ -103,15 +102,15 @@ const SignupPage = () => {
               </Grid>
 
               <Grid item xs={12} textAlign="center">
-                <IconButton>
+                <IconButton onClick={() => signIn("github")}>
+                  <GitHubIcon />
+                </IconButton>
+                {/* <IconButton>
                   <FacebookIcon />
                 </IconButton>
                 <IconButton>
                   <GoogleIcon />
-                </IconButton>
-                <IconButton>
-                  <GitHubIcon />
-                </IconButton>
+                </IconButton> */}
               </Grid>
             </Grid>
           </Grid>
@@ -133,3 +132,11 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
 
   return { props: {} };
 };
+
+const signupResolver = yupResolver(
+  yup.object({
+    name: yup.string().required(messages.msgRequered),
+    email: yup.string().required(messages.msgRequered).email(messages.msgEmail),
+    password: yup.string().required(messages.msgRequered).min(6, messages.msgMinPass),
+  })
+);

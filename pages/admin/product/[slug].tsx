@@ -4,7 +4,6 @@ import {
   Button,
   capitalize,
   Card,
-  CardActions,
   CardMedia,
   Checkbox,
   Chip,
@@ -18,7 +17,6 @@ import {
   IconButton,
   Radio,
   RadioGroup,
-  TextareaAutosize,
   TextField,
 } from "@mui/material";
 import { ax } from "api";
@@ -32,8 +30,10 @@ import { useRouter } from "next/router";
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { createProductResolver } from "validators";
 import CloseIcon from "@mui/icons-material/Close";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { messages } from "validators";
 
 interface Props {
   product: IProduct;
@@ -330,3 +330,21 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 };
 
 export default ProductAdminPage;
+
+const createProductResolver = yupResolver(
+  yup.object({
+    title: yup.string().required(messages.msgRequered),
+    inStock: yup.number().required(messages.msgRequered).positive(messages.msgPositive),
+    images: yup.array().of(yup.string().required(messages.msgRequered)),
+    price: yup.number().required(messages.msgRequered).positive(messages.msgPositive),
+    description: yup.string().required(messages.msgRequered),
+    sizes: yup.array().of(yup.string().required(messages.msgRequered).oneOf(allowedSizes, messages.msgNotAllowed)),
+    tags: yup.array().of(yup.string().required(messages.msgRequered)),
+    type: yup.string().required(messages.msgRequered).oneOf(allowedTypes, messages.msgNotAllowed),
+    gender: yup.string().required(messages.msgRequered).oneOf(allowedGenres, messages.msgNotAllowed),
+    slug: yup
+      .string()
+      .required(messages.msgRequered)
+      .test("not-empty", messages.msgNoBlanks, (val) => !val!.includes(" ")),
+  })
+);

@@ -2,7 +2,7 @@ import { userdb } from "database";
 import nextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
-import { IUser } from "../../../interfaces/users";
+
 export default nextAuth({
   providers: [
     Credentials({

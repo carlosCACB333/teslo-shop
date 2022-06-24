@@ -1,19 +1,18 @@
 import { Grid, TextField, Typography, Button, Link, Divider, IconButton } from "@mui/material";
 import Image from "next/image";
 import NextLink from "next/link";
-import React, { useContext } from "react";
+import React from "react";
 import { AuthLayout } from "../../components/layout";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GoogleIcon from "@mui/icons-material/Google";
 import { Logo, Toast } from "../../components/UI";
 import { useForm } from "react-hook-form";
-import { loginResolver } from "../../validators";
-import { AuthContext } from "../../context";
 import toast from "react-hot-toast";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/router";
-import { getSession, signIn, signOut } from "next-auth/react";
 import { GetServerSideProps } from "next";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { messages } from "../../validators/form";
 
 interface IForm {
   email: string;
@@ -25,13 +24,12 @@ const LoginPage = () => {
   const next = (router.query.next as string) || "/";
 
   const {
-    setError,
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<IForm>({ mode: "onChange", resolver: loginResolver });
 
-  const onLogin = async (data: IForm) => {
+  const onLogin = (data: IForm) => {
     signIn("credentials", { ...data, redirect: false })
       .then((res: any) => {
         if (res.ok) {
@@ -105,12 +103,12 @@ const LoginPage = () => {
                 <IconButton onClick={() => signIn("github")}>
                   <GitHubIcon />
                 </IconButton>
-                <IconButton>
+                {/* <IconButton>
                   <FacebookIcon />
                 </IconButton>
                 <IconButton>
                   <GoogleIcon />
-                </IconButton>
+                </IconButton> */}
               </Grid>
             </Grid>
           </Grid>
@@ -132,3 +130,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
 
   return { props: {} };
 };
+
+const loginResolver = yupResolver(
+  yup.object({
+    email: yup.string().required(messages.msgRequered).email(messages.msgEmail),
+    password: yup.string().required(messages.msgRequered).min(6, messages.msgMinPass),
+  })
+);
