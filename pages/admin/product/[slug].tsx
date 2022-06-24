@@ -28,12 +28,31 @@ import { Product } from "models";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import CloseIcon from "@mui/icons-material/Close";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { messages } from "validators";
+import { z } from "zod";
+
+const productSchema = z.object({
+  title: z.string({ invalid_type_error: messages.invalidValue }).trim().min(1, messages.msgRequered),
+  inStock: z.number({ invalid_type_error: messages.invalidValue }),
+  images: z.array(z.string({ invalid_type_error: messages.invalidValue })).min(2, messages.msgMin),
+  price: z.number({ invalid_type_error: messages.invalidValue }).nonnegative(messages.msgPositive),
+  description: z.string({ invalid_type_error: messages.invalidValue }).trim().min(1, messages.msgRequered),
+  sizes: z.array(z.enum(allowedSizes as any), { invalid_type_error: messages.msgNotAllowed }),
+  tags: z.array(z.string({ invalid_type_error: messages.invalidValue })),
+  type: z
+    .string({ invalid_type_error: messages.invalidValue })
+    .refine((val) => allowedTypes.includes(val as any), { message: messages.msgNotAllowed }),
+  gender: z.enum(allowedGenres as any, { invalid_type_error: messages.msgNotAllowed }),
+  slug: z
+    .string({ invalid_type_error: messages.invalidValue })
+    .trim()
+    .min(1, messages.msgRequered)
+    .refine((val) => !val!.includes(" "), { message: messages.msgNoBlanks }),
+});
 
 interface Props {
   product: IProduct;
@@ -51,7 +70,7 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
     getValues,
     setValue,
     watch,
-  } = useForm<IProduct>({ defaultValues: product, resolver: createProductResolver });
+  } = useForm<IProduct>({ mode: "onChange", defaultValues: product, resolver: zodResolver(productSchema) });
 
   useEffect(() => {
     const obs = watch((data, e) => {
@@ -160,7 +179,8 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
               type="number"
               fullWidth
               sx={{ mb: 1 }}
-              {...register("inStock")}
+              value={getValues("inStock")}
+              onChange={(e) => setValue("inStock", Number(e.target.value), { shouldValidate: true })}
               error={!!errors.inStock}
               helperText={errors.inStock?.message}
             />
@@ -170,7 +190,8 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
               type="number"
               fullWidth
               sx={{ mb: 1 }}
-              {...register("price")}
+              value={getValues("price")}
+              onChange={(e) => setValue("price", Number(e.target.value), { shouldValidate: true })}
               error={!!errors.price}
               helperText={errors.price?.message}
             />
@@ -270,7 +291,7 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
                 onChange={onFileSelected}
               />
 
-              <Chip label="Es necesario al 2 imagenes" color="error" variant="outlined" sx={{ marginBottom: 2 }} />
+              {!!errors.images && <Chip label={errors.images?.message} color="error" variant="outlined" sx={{ marginBottom: 2 }} />}
 
               <Grid container spacing={2}>
                 {getValues("images").map((img) => (
@@ -305,9 +326,9 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   if (slug === "new") {
     const temp = JSON.parse(JSON.stringify(new Product()));
     delete temp._id;
-    temp.images = ["img1", "img2"];
     temp.type = "";
     temp.gender = "";
+    temp.price = 0;
     product = temp;
   } else {
     product = await productdb.getProductBySlug(slug.toString());
@@ -330,21 +351,3 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 };
 
 export default ProductAdminPage;
-
-const createProductResolver = yupResolver(
-  yup.object({
-    title: yup.string().required(messages.msgRequered),
-    inStock: yup.number().required(messages.msgRequered).positive(messages.msgPositive),
-    images: yup.array().of(yup.string().required(messages.msgRequered)),
-    price: yup.number().required(messages.msgRequered).positive(messages.msgPositive),
-    description: yup.string().required(messages.msgRequered),
-    sizes: yup.array().of(yup.string().required(messages.msgRequered).oneOf(allowedSizes, messages.msgNotAllowed)),
-    tags: yup.array().of(yup.string().required(messages.msgRequered)),
-    type: yup.string().required(messages.msgRequered).oneOf(allowedTypes, messages.msgNotAllowed),
-    gender: yup.string().required(messages.msgRequered).oneOf(allowedGenres, messages.msgNotAllowed),
-    slug: yup
-      .string()
-      .required(messages.msgRequered)
-      .test("not-empty", messages.msgNoBlanks, (val) => !val!.includes(" ")),
-  })
-);

@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 import { GetServerSideProps } from "next";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { messages } from "../../validators/form";
+import { messages } from "validators";
 
 interface IForm {
   email: string;

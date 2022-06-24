@@ -5,4 +5,6 @@ export const messages = {
   msgPositive: "Este campo no puede ser negativo",
   msgNotAllowed: "Esta opcion no es permitdo",
   msgNoBlanks: "No se permiten espacios en blancos",
+  invalidValue: "Este valor no es válido",
+  msgMin: "Este debe tener más elementos",
 };
