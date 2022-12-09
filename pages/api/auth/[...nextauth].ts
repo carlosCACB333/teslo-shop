@@ -1,15 +1,15 @@
-import { userdb } from "database";
-import nextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import GitHubProvider from "next-auth/providers/github";
+import { userdb } from 'database';
+import nextAuth from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
+import GitHubProvider from 'next-auth/providers/github';
 
 export default nextAuth({
   providers: [
     Credentials({
-      name: "custom login",
+      name: 'custom login',
       credentials: {
-        email: { type: "email", label: "Correo", placeholder: "ejmplo23@gmail.com" },
-        password: { type: "password", label: "Contraseña", placeholder: "*********" },
+        email: { type: 'email', label: 'Correo', placeholder: 'ejmplo23@gmail.com' },
+        password: { type: 'password', label: 'Contraseña', placeholder: '*********' },
       },
       async authorize(credencials) {
         if (!credencials?.email || !credencials?.password) return null;
@@ -17,15 +17,15 @@ export default nextAuth({
       },
     }),
     GitHubProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
+      clientId: process.env.GITHUB_I!,
+      clientSecret: process.env.GITHUB_SECRE!,
     }),
   ],
 
-  pages: { signIn: "/auth/login", newUser: "/auth/signup" },
+  pages: { signIn: '/auth/login', newUser: '/auth/signup' },
   session: {
     maxAge: 2592000,
-    strategy: "jwt",
+    strategy: 'jwt',
     updateAge: 86400,
   },
 
@@ -35,12 +35,12 @@ export default nextAuth({
         token.accessToken = account.access_token;
 
         switch (account.type) {
-          case "oauth":
+          case 'oauth':
             // con redes sociales
             token.user = await userdb.oAuthToUser(user?.email!, user?.name!, user?.image!);
             break;
 
-          case "credentials":
+          case 'credentials':
             // login personalizada
             token.user = user as any;
             break;
